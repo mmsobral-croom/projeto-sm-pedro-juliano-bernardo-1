@@ -1,11 +1,13 @@
 package sm;
 
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 @Builder
 @Value
+@Accessors(fluent = true)
 public class Produto {
         String nome;
         String id;
