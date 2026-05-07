@@ -88,7 +88,7 @@ public class Supermercado {
         class Iterador implements Iterator<Produto> {
             int total;
             int inicio = 0;
-//            int pos = 0;
+            //            int pos = 0;
             ListaSequencial<Produto> produtos;
 
             Iterador(ListaSequencial<Produto> produtos, int total) {
@@ -148,6 +148,15 @@ public class Supermercado {
         sb.append(this.url);
         sb.append("?fq=productId:");
         sb.append(produtoId);
+
+        return sb.toString();
+    }
+
+    String make_ean_url(String ean) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.url);
+        sb.append("?fq=ean:");
+        sb.append(URLEncoder.encode(ean, StandardCharsets.UTF_8));
 
         return sb.toString();
     }
@@ -234,6 +243,21 @@ public class Supermercado {
         return res;
     }
 
+
+    public Resultado buscaPorEan(String ean) {
+        Resultado res = null;
+
+        HttpResponse<String> response = envia(make_ean_url(ean));
+        if (response != null) {
+            int status = response.statusCode();
+            if (status == 200 || status == 206) {
+                ListaSequencial<Produto> r = extrai_produtos(response);
+                int[] faixa = obtem_info_paginas(response);
+                res = new Resultado(this, ean, r, faixa[2]);
+            }
+        }
+        return res;
+    }
 
     public Produto obtem(String produto_id) {
         Produto prod = null;
