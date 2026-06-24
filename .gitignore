@@ -41,3 +41,5 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+### Cache do projeto 2 (gerada em tempo de execução) ###
+cache/

@@ -27,6 +27,20 @@ public class BuscadorCesta {
         return supermercados.comprimento();
     }
 
+    // Recupera a cache de cada supermercado a partir do seu arquivo, chamado no inicio
+    public void carregaCaches() {
+        for (int i = 0; i < supermercados.comprimento(); i++) {
+            supermercados.obtem(i).cache.carrega();
+        }
+    }
+
+    // Grava a cache de cada supermercado em seu arquivo, chamado no fim
+    public void salvaCaches() {
+        for (int i = 0; i < supermercados.comprimento(); i++) {
+            supermercados.obtem(i).cache.salva();
+        }
+    }
+
     // Busca um produto em todos os supermercados
     public ListaSequencial<ProdutoComum> buscaEmTodos(String termo) {
 
@@ -48,7 +62,7 @@ public class BuscadorCesta {
 
             EntradaSupermercado entrada = supermercados.obtem(i);
 
-            // Busca os produtos do termo, primeiro na cache, e só na API se a cache não tiver nenhum produto que satisfaça a busca
+            // Busca os produtos do termo: primeiro na cache, e só na API se a cache não tiver nenhum produto que satisfaça a busca
             ListaSequencial<Produto> produtos = produtosDe(entrada, termo);
 
             int verificados = 0;
@@ -118,7 +132,6 @@ public class BuscadorCesta {
     }
 
     // Obtém os produtos de um supermercado para o termo de busca
-    // Consulta a cache e só acessa a API quando a cache não possui nenhum produto da busca, e então armazena o resultado da consulta na cache
     private ListaSequencial<Produto> produtosDe(EntradaSupermercado entrada, String termo) {
 
         // 1. Tenta na cache (evita o acesso à API se já houver resultado)
@@ -126,7 +139,7 @@ public class BuscadorCesta {
 
         if (achados.comprimento() > 0) return achados;
 
-        // 2. Cache não tem o termo, então consulta a API e guarda o resultado na cache
+        // 2. Cache não tem o termo: consulta a API e guarda o resultado na cache
         Supermercado.Resultado resultado = entrada.sm.busca(termo);
 
         if (resultado != null) {
@@ -224,7 +237,7 @@ public class BuscadorCesta {
         // Objeto do supermercado
         final Supermercado sm;
 
-        // Cache do supermercado
+        // Cache persistente do supermercado
         final CacheSupermercado cache;
 
         // Construtor da classe

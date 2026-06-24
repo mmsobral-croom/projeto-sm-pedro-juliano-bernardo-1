@@ -32,7 +32,19 @@ public class Main {
         System.out.println("  Buscador do Melhor Preço de Cesta");
         System.out.println("=========================================");
 
-        // Loop principal do menu
+        // Recupera a cache de cada supermercado a partir dos arquivos
+        buscador.carregaCaches();
+
+        // Executa o menu até o usuário encerrar
+        loopMenu(cesta, buscador, comparador);
+
+        // Grava a cache de cada supermercado em arquivo ao encerrar
+        buscador.salvaCaches();
+    }
+
+    // Loop principal do menu
+    static void loopMenu(Cesta cesta, BuscadorCesta buscador, ComparadorPrecos comparador) {
+
         while (true) {
 
             mostraMenu();
