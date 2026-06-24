@@ -63,19 +63,19 @@ public class BuscadorCesta {
                 verificados++;
 
                 // Ignora produtos inválidos
-                if (p == null || !p.disponivel() || p.preco() <= 0f) continue;
+                if (p == null || !p.isDisponivel() || p.getPreco() <= 0f) continue;
 
                 // Se o produto possuir EAN
-                if (p.ean() != null && !p.ean().isBlank()) {
+                if (p.getEan() != null && !p.getEan().isBlank()) {
 
                     // Agrupa pelo código EAN
-                    porEan.computeIfAbsent(p.ean(), k -> new HashMap<>())
+                    porEan.computeIfAbsent(p.getEan(), k -> new HashMap<>())
                             .put(entrada.nome, p);
 
                 } else {
 
                     // Normaliza o nome do produto
-                    String nomeNorm = normaliza(p.nome());
+                    String nomeNorm = normaliza(p.getNome());
 
                     // Agrupa pelo nome
                     porNome.computeIfAbsent(nomeNorm, k -> new HashMap<>())
@@ -135,11 +135,11 @@ public class BuscadorCesta {
             if (p == null) return null;
 
             // Define o nome do produto
-            if (nome == null) nome = p.nome();
+            if (nome == null) nome = p.getNome();
 
             // Adiciona o preço do supermercado
             precos.adiciona(
-                    new ProdutoComum.EntradaPreco(nomeSm, p.preco(), p.id())
+                    new ProdutoComum.EntradaPreco(nomeSm, p.getPreco(), p.getId())
             );
         }
 

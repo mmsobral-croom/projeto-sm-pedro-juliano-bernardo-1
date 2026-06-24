@@ -91,7 +91,7 @@ public class ComparadorPrecos {
                 melhor = sm.obtem(productId);
 
                 // Verifica se o produto está disponível e possui preço válido
-                if (melhor != null && (!melhor.disponivel() || melhor.preco() <= 0f)) {
+                if (melhor != null && (!melhor.isDisponivel() || melhor.getPreco() <= 0f)) {
                     melhor = null;
                 }
 
@@ -112,7 +112,7 @@ public class ComparadorPrecos {
                 escolhidos.adiciona(melhor);
 
                 // Soma o valor ao total
-                total += melhor.preco() * item.quantidade();
+                total += melhor.getPreco() * item.quantidade();
             }
         }
 
@@ -140,13 +140,13 @@ public class ComparadorPrecos {
             if (p == null) continue;
 
             // Ignora produtos indisponíveis
-            if (!p.disponivel()) continue;
+            if (!p.isDisponivel()) continue;
 
             // Ignora produtos sem preço válido
-            if (p.preco() <= 0f) continue;
+            if (p.getPreco() <= 0f) continue;
 
             // Verifica se é o produto mais barato até agora
-            if (melhor == null || p.preco() < melhor.preco()) {
+            if (melhor == null || p.getPreco() < melhor.getPreco()) {
                 melhor = p;
             }
 
