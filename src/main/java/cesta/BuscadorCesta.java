@@ -16,9 +16,10 @@ public class BuscadorCesta {
     // Lista de supermercados cadastrados
     private final ListaSequencial<EntradaSupermercado> supermercados = new ListaSequencial<>();
 
-    // Adiciona um supermercado na lista
+    // Adiciona um supermercado na lista, criando sua cache persistente
     public void adicionaSupermercado(String nome, Supermercado sm) {
-        supermercados.adiciona(new EntradaSupermercado(nome, sm));
+        CacheSupermercado cache = new CacheSupermercado("cache/" + nome + ".json");
+        supermercados.adiciona(new EntradaSupermercado(nome, sm, cache));
     }
 
     // Retorna a quantidade de supermercados cadastrados
@@ -47,15 +48,15 @@ public class BuscadorCesta {
 
             EntradaSupermercado entrada = supermercados.obtem(i);
 
-            // Realiza a busca do produto
-            Supermercado.Resultado resultado = entrada.sm.busca(termo);
-
-            if (resultado == null) continue;
+            // Busca os produtos do termo, primeiro na cache, e só na API se a cache não tiver nenhum produto que satisfaça a busca
+            ListaSequencial<Produto> produtos = produtosDe(entrada, termo);
 
             int verificados = 0;
 
             // Percorre os produtos encontrados
-            for (Produto p : resultado) {
+            for (int j = 0; j < produtos.comprimento(); j++) {
+
+                Produto p = produtos.obtem(j);
 
                 // Limita a quantidade de produtos analisados
                 if (verificados >= LIMITE_VARREDURA) break;
@@ -114,6 +115,36 @@ public class BuscadorCesta {
         ordenaPorPrecoMedio(resultado);
 
         return resultado;
+    }
+
+    // Obtém os produtos de um supermercado para o termo de busca
+    // Consulta a cache e só acessa a API quando a cache não possui nenhum produto da busca, e então armazena o resultado da consulta na cache
+    private ListaSequencial<Produto> produtosDe(EntradaSupermercado entrada, String termo) {
+
+        // 1. Tenta na cache (evita o acesso à API se já houver resultado)
+        ListaSequencial<Produto> achados = entrada.cache.busca(termo);
+
+        if (achados.comprimento() > 0) return achados;
+
+        // 2. Cache não tem o termo, então consulta a API e guarda o resultado na cache
+        Supermercado.Resultado resultado = entrada.sm.busca(termo);
+
+        if (resultado != null) {
+
+            int guardados = 0;
+
+            for (Produto p : resultado) {
+
+                if (guardados >= LIMITE_VARREDURA) break;
+
+                entrada.cache.guarda(p);
+
+                guardados++;
+            }
+        }
+
+        // 3. Re-busca na cache, agora populada
+        return entrada.cache.busca(termo);
     }
 
     // Monta um objeto ProdutoComum
@@ -184,7 +215,7 @@ public class BuscadorCesta {
                 .replaceAll("\\s+", " ");
     }
 
-    // Classe usada para armazenar supermercado e nome
+    // Classe usada para armazenar supermercado, nome e sua cache
     static class EntradaSupermercado {
 
         // Nome do supermercado
@@ -193,10 +224,14 @@ public class BuscadorCesta {
         // Objeto do supermercado
         final Supermercado sm;
 
+        // Cache do supermercado
+        final CacheSupermercado cache;
+
         // Construtor da classe
-        EntradaSupermercado(String nome, Supermercado sm) {
+        EntradaSupermercado(String nome, Supermercado sm, CacheSupermercado cache) {
             this.nome = nome;
             this.sm = sm;
+            this.cache = cache;
         }
     }
 }
