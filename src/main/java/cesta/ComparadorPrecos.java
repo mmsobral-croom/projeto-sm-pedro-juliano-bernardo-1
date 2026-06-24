@@ -3,6 +3,7 @@ package cesta;
 import esd.ListaSequencial;
 import sm.Produto;
 import sm.Supermercado;
+import esd.TabHash;
 
 // Classe responsável por comparar preços entre supermercados
 public class ComparadorPrecos {
@@ -74,6 +75,31 @@ public class ComparadorPrecos {
         // Lista de produtos que não foram encontrados
         ListaSequencial<ItemCesta> faltantes = new ListaSequencial<>();
 
+        // Coleta os ids dos itens que possuem id neste supermercado
+        ListaSequencial<String> ids = new ListaSequencial<>();
+
+        for (int i = 0; i < cesta.comprimento(); i++) {
+
+            String productId = cesta.obtem(i).idParaSm(nomeSm);
+
+            if (productId != null) ids.adiciona(productId);
+        }
+
+        // Busca o preço atualizado de todos os ids de uma única vez e indexa o resultado por id
+        TabHash<String, Produto> porId = new TabHash<>();
+
+        if (ids.comprimento() > 0) {
+
+            ListaSequencial<Produto> obtidos = sm.obtem(ids);
+
+            for (int i = 0; i < obtidos.comprimento(); i++) {
+
+                Produto p = obtidos.obtem(i);
+
+                if (p != null && p.getId() != null) porId.adiciona(p.getId(), p);
+            }
+        }
+
         // Percorre todos os itens da cesta
         for (int i = 0; i < cesta.comprimento(); i++) {
 
@@ -85,10 +111,10 @@ public class ComparadorPrecos {
             // Busca o ID do produto no supermercado
             String productId = item.idParaSm(nomeSm);
 
-            // Se já existir um ID salvo, busca diretamente o produto
+            // Se já existir um ID salvo usa o produto atualizado da busca em lote
             if (productId != null) {
 
-                melhor = sm.obtem(productId);
+                melhor = porId.obtem_ou_default(productId, null);
 
                 // Verifica se o produto está disponível e possui preço válido
                 if (melhor != null && (!melhor.isDisponivel() || melhor.getPreco() <= 0f)) {
