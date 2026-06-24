@@ -12,7 +12,7 @@ public class Main {
 
     private static final Scanner scanner = new Scanner(System.in);
 
-    static void main() {
+    public static void main(String[] args) {
 
         // Cria os supermercados
         Bistek bistek = new Bistek();

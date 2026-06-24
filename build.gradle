@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group = 'proj1'
@@ -20,6 +21,14 @@ dependencies {
 
     testCompileOnly("org.projectlombok:lombok:1.18.46")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.46")
+}
+
+application {
+    mainClass = 'Main'
+}
+
+run {
+    standardInput = System.in
 }
 
 test {
