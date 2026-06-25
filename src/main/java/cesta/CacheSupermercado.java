@@ -5,15 +5,15 @@ import esd.TabHash;
 import sm.Produto;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-// Cache dos produtos de um supermercado
-// Os produtos são indexados pelo productId em uma TabHash, o que dá busca O(1) por id (usada para atualizar preço/disponibilidade).
-// A busca por nome (ou parte do nome) ou por EAN é feita por varredura, como no projeto 1.
+// Os produtos são indexados pelo productId em uma TabHash, o que dá busca O(1) por id (usada para atualizar preço/disponibilidade)
+// A busca por nome (ou parte do nome) ou por EAN é feita por varredura
 public class CacheSupermercado {
     // Produtos indexados pelo id (productId do supermercado)
     private final TabHash<String, Produto> porId = new TabHash<>();
@@ -60,15 +60,15 @@ public class CacheSupermercado {
         return porId.esta_vazia();
     }
 
-    // Busca os produtos que o nome contém o termo, ou que o EAN é igual ao termo
-    // Mesma coisa do projeto 1
+    // Busca os produtos que o nome contém o termo ou que o EAN é igual ao termo
+    // Mesma semântica de busca por nome (ou parte do nome) do projeto 1.
     public ListaSequencial<Produto> busca(String termo) {
 
         ListaSequencial<Produto> encontrados = new ListaSequencial<>();
 
         if (termo == null || termo.isBlank()) return encontrados;
 
-        // Normaliza a busca
+        // Normaliza o termo para comparação por nome
         String alvo = termo.toLowerCase().trim();
 
         ListaSequencial<Produto> todos = porId.valores();
@@ -91,12 +91,12 @@ public class CacheSupermercado {
         return encontrados;
     }
 
-    // Lê a cache do arquivo se ele existir
+    // Lê a cache do arquivo, se ele existir, no inicio do sistema
     public void carrega() {
 
         File f = new File(arquivo);
 
-        // Se não tem arquivo ainda, começa com a cache vazia
+        // Sem arquivo ainda, começa com a cache vazia
         if (!f.exists()) return;
 
         try {
@@ -109,12 +109,13 @@ public class CacheSupermercado {
                 guarda(produtoDeJson(arr.getJSONObject(i)));
             }
 
-        } catch (IOException e) {
-            // Se não conseguir ler, segue com a cache vazia
+        } catch (IOException | JSONException e) {
+
+            // Se não conseguir ler ou o arquivo estiver corrompido, segue com a cache vazia em vez de derrubar o programa
         }
     }
 
-    // Salva a cache no arquivo
+    // Grava a cache no arquivo no fim do sistema
     public void salva() {
 
         JSONArray arr = new JSONArray();
@@ -130,14 +131,13 @@ public class CacheSupermercado {
 
             File f = new File(arquivo);
 
-            // Cria a pasta da cache se necessário
             File pasta = f.getParentFile();
             if (pasta != null) pasta.mkdirs();
 
             Files.writeString(f.toPath(), arr.toString());
 
         } catch (IOException e) {
-            // Se não conseguir gravar, a cache apenas não persiste
+            // Se não conseguir gravar a cache só não persiste
         }
     }
 
@@ -146,7 +146,7 @@ public class CacheSupermercado {
 
         JSONObject o = new JSONObject();
 
-        // put com valor null remove a chave, na leitura tratei isso com optString
+        // put com valor null remove a chave e na leitura tratamos com optString
         o.put("nome", p.getNome());
         o.put("id", p.getId());
         o.put("marca", p.getMarca());
