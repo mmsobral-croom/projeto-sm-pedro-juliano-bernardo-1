@@ -42,3 +42,42 @@ public class Main {
     }
 }
 ```
+
+# Projeto 2: Melhor Preço (com cache persistente)
+
+Programa que monta uma cesta de compras e descobre em qual supermercado
+(Giassi, Bistek ou Fort Atacadista) ela sai mais barata.
+
+O projeto 2 estende o projeto 1 adicionando uma **cache persistente** dos
+produtos, para reduzir os acessos às APIs dos supermercados.
+
+## Como executar
+
+```bash
+./gradlew run
+```
+
+O uso do programa está descrito em [ManualUtilizacao.md](ManualUtilizacao.md).
+
+## O que o projeto 2 acrescenta
+
+- **Cache por supermercado** (`cesta/CacheSupermercado.java`): guarda os
+  produtos já buscados, indexados pelo `id` em uma tabela hash
+  (`esd/TabHash.java`). A busca por nome (ou parte do nome) ou por EAN é
+  feita por varredura, como no projeto 1.
+- **Busca consulta a cache primeiro**: a API de um supermercado só é
+  acessada quando a cache não tem nenhum produto que satisfaça o termo, e o
+  resultado é então guardado na cache.
+- **Preço atualizado em lote**: ao terminar a cesta, os preços são obtidos
+  por `id` em uma única chamada por supermercado
+  (`Supermercado.obtem(ListaSequencial<String>)`).
+- **Persistência**: a cache é gravada em `cache/` (um arquivo JSON por
+  supermercado) ao encerrar e recuperada ao iniciar.
+
+## Estrutura
+
+- `esd/` — estruturas de dados próprias (`ListaSequencial`, `TabHash`)
+- `sm/` — buscadores dos supermercados (fornecidos)
+- `cesta/` — montagem da cesta, comparação de preços e cache
+- `cache/` — criada após execução, guarda arquivos JSON de cada supermercado
+- `Main.java` — interface de menu
