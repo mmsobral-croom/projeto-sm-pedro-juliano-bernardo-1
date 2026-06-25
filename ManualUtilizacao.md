@@ -8,6 +8,12 @@ Clone o repositório:
 git clone https://github.com/mmsobral-croom/projeto-sm-pedro-juliano-bernardo-1.git
 ```
 
+Troque para a branch *projeto2*
+
+```bash
+git checkout projeto2
+```
+
 Abra um terminal na pasta raiz do projeto (`projeto-definitivo-sm`) e rode:
 
 ```bash
@@ -122,6 +128,19 @@ Encerra o programa.
 
 ---
 
-## 4. Limitação
+## 4. Cache (*Projeto 2*)
+
+O programa mantém uma cache dos produtos já buscados em cada supermercado,
+gravada na pasta `cache/` (um arquivo por supermercado).
+
+- A primeira busca por um termo consulta o supermercado e guarda o resultado.
+- Buscas seguintes pelo mesmo termo são respondidas pela cache, sem nova
+  consulta — por isso ficam mais rápidas.
+- A cache é gravada ao encerrar e recuperada ao iniciar, persistindo entre
+  execuções.
+- Para forçar uma busca nova, apague a pasta `cache/`.
+---
+
+## 5. Limitação
 
 - Só permite adicionar produtos que estejam **disponíveis simultaneamente nos três supermercados**.
